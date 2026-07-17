@@ -1,11 +1,12 @@
 import { getTaskFeed } from "@/lib/actions/tasks";
+import { getMyProfile } from "@/lib/actions/profile";
 import { cycleLabel } from "@/lib/cycle";
 import TaskFeed from "@/components/TaskFeed";
 
 export const dynamic = "force-dynamic";
 
 export default async function DashboardPage() {
-  const items = await getTaskFeed();
+  const [items, profile] = await Promise.all([getTaskFeed(), getMyProfile()]);
 
   return (
     <main className="space-y-5">
@@ -19,7 +20,7 @@ export default async function DashboardPage() {
         </span>
       </div>
 
-      <TaskFeed items={items} />
+      <TaskFeed items={items} myId={profile?.id ?? null} />
     </main>
   );
 }

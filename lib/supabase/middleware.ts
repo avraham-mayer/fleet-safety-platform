@@ -33,6 +33,7 @@ export async function updateSession(request: NextRequest) {
   } = await supabase.auth.getUser();
 
   const isLoginRoute = request.nextUrl.pathname.startsWith("/login");
+  const isAdminRoute = request.nextUrl.pathname.startsWith("/admin");
 
   if (!user && !isLoginRoute) {
     const url = request.nextUrl.clone();
@@ -44,6 +45,21 @@ export async function updateSession(request: NextRequest) {
     const url = request.nextUrl.clone();
     url.pathname = "/";
     return NextResponse.redirect(url);
+  }
+
+  // /admin is role-gated: only profiles.role = 'admin' may enter. Officers are
+  // sent back to their task feed. (The admin layout re-checks server-side.)
+  if (user && isAdminRoute) {
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("role")
+      .eq("id", user.id)
+      .single();
+    if (profile?.role !== "admin") {
+      const url = request.nextUrl.clone();
+      url.pathname = "/";
+      return NextResponse.redirect(url);
+    }
   }
 
   return response;

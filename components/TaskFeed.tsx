@@ -16,9 +16,19 @@ const KIND_BADGE: Record<TaskType, { label: string; cls: string }> = {
   document: { label: "מסמך", cls: "bg-slate-100 text-slate-600" },
 };
 
-export default function TaskFeed({ items }: { items: FeedItem[] }) {
+export default function TaskFeed({
+  items,
+  myId = null,
+}: {
+  items: FeedItem[];
+  myId?: string | null;
+}) {
   const [company, setCompany] = useState("");
   const [search, setSearch] = useState("");
+  const [mineOnly, setMineOnly] = useState(false);
+
+  // Offer "my tasks" only once handlers are actually assigned.
+  const hasHandlers = myId != null && items.some((i) => i.handlerId);
 
   const companies = useMemo(
     () =>
@@ -33,6 +43,7 @@ export default function TaskFeed({ items }: { items: FeedItem[] }) {
   );
 
   const filtered = items.filter((i) => {
+    if (mineOnly && i.handlerId !== myId) return false;
     if (company && i.companyId !== company) return false;
     if (search) {
       const q = search.trim().toLowerCase();
@@ -64,6 +75,17 @@ export default function TaskFeed({ items }: { items: FeedItem[] }) {
           placeholder="חיפוש לפי מספר רכב או נהג"
           className="flex-1 rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-900 focus:border-blue-500 focus:outline-none"
         />
+        {hasHandlers && (
+          <label className="flex items-center gap-2 rounded-lg border border-slate-300 px-3 py-2 text-sm font-medium text-slate-700">
+            <input
+              type="checkbox"
+              checked={mineOnly}
+              onChange={(e) => setMineOnly(e.target.checked)}
+              className="h-4 w-4 rounded border-slate-300"
+            />
+            המשימות שלי
+          </label>
+        )}
       </div>
 
       {filtered.length === 0 ? (

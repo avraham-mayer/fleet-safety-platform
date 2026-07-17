@@ -1,7 +1,14 @@
 import Link from "next/link";
+import { getMyProfile } from "@/lib/actions/profile";
 import SignOutButton from "@/components/SignOutButton";
 
-export default function AppLayout({ children }: { children: React.ReactNode }) {
+export default async function AppLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  const profile = await getMyProfile();
+
   return (
     <>
       <header className="sticky top-0 z-10 border-b border-slate-200 bg-white">
@@ -10,6 +17,14 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
             בדיקות בטיחות צי
           </Link>
           <nav className="flex items-center gap-1">
+            {profile?.role === "admin" && (
+              <Link
+                href="/admin"
+                className="rounded-lg px-3 py-1.5 text-sm font-medium text-slate-600 transition hover:bg-slate-100"
+              >
+                ניהול
+              </Link>
+            )}
             <Link
               href="/profile"
               className="rounded-lg px-3 py-1.5 text-sm font-medium text-slate-600 transition hover:bg-slate-100"

@@ -12,10 +12,12 @@ export default function TrainingFlow({
   driver,
   hasOfficerSignature,
   taskId,
+  returnTo,
 }: {
   driver: Driver;
   hasOfficerSignature: boolean;
   taskId: string | null;
+  returnTo: string;
 }) {
   const router = useRouter();
   const [moduleType, setModuleType] = useState(TRAINING_MODULES[0].type);
@@ -52,7 +54,7 @@ export default function TrainingFlow({
           יש לשמור חתימת קצין בטיחות בפרופיל לפני ביצוע הדרכה.
         </p>
         <Link
-          href="/profile"
+          href={`/profile?returnTo=${encodeURIComponent(returnTo)}`}
           className="inline-block rounded-lg bg-blue-600 px-6 py-2 font-semibold text-white hover:bg-blue-700"
         >
           מעבר לפרופיל

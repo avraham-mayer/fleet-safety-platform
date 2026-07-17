@@ -21,8 +21,10 @@ export async function renewDocument(formData: FormData) {
   } = await supabase.auth.getUser();
   if (!user) throw new Error("נדרשת התחברות");
 
-  const update: { expiry_date: string; file_url?: string } = {
+  const update: { expiry_date: string; issued_date: string; file_url?: string } = {
     expiry_date: expiryDate,
+    // בוצע בתאריך — renewal happened now.
+    issued_date: new Date().toISOString().slice(0, 10),
   };
 
   if (file instanceof File && file.size > 0) {

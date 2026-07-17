@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import BackLink from "@/components/BackLink";
 import DocumentRenewal from "@/components/DocumentRenewal";
 import type { Document } from "@/lib/types";
 
@@ -40,5 +41,10 @@ export default async function RenewPage({
     entityLabel = d?.name ?? "";
   }
 
-  return <DocumentRenewal document={document} entityLabel={entityLabel} />;
+  return (
+    <div className="space-y-4">
+      <BackLink />
+      <DocumentRenewal document={document} entityLabel={entityLabel} />
+    </div>
+  );
 }

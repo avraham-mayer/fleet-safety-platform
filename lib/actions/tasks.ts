@@ -13,15 +13,19 @@ export async function getTaskFeed(): Promise<FeedItem[]> {
   const supabase = await createClient();
   const items: FeedItem[] = [];
 
-  // Lookups for labels/filtering.
+  // Lookups for labels/filtering. Companies use select("*") so the feed keeps
+  // working whether or not the 0003 handler_id column exists yet.
   const [{ data: companies }, { data: vehicles }, { data: drivers }] =
     await Promise.all([
-      supabase.from("companies").select("id, name"),
+      supabase.from("companies").select("*"),
       supabase.from("vehicles").select("id, license_plate, company_id"),
       supabase.from("drivers").select("id, name, company_id"),
     ]);
 
   const companyName = new Map((companies ?? []).map((c) => [c.id, c.name]));
+  const companyHandler = new Map(
+    (companies ?? []).map((c) => [c.id, c.handler_id ?? null]),
+  );
   const vehicleById = new Map((vehicles ?? []).map((v) => [v.id, v]));
   const driverById = new Map((drivers ?? []).map((d) => [d.id, d]));
 
@@ -35,6 +39,7 @@ export async function getTaskFeed(): Promise<FeedItem[]> {
       subtitle: `${v.license_plate} · ${v.company.name}`,
       companyId: v.company_id,
       companyName: v.company.name,
+      handlerId: companyHandler.get(v.company_id) ?? null,
       plate: v.license_plate,
       driverName: null,
       dueDate: null,
@@ -63,6 +68,7 @@ export async function getTaskFeed(): Promise<FeedItem[]> {
       subtitle: `${label} · ${cName}`,
       companyId: t.company_id,
       companyName: cName,
+      handlerId: t.company_id ? (companyHandler.get(t.company_id) ?? null) : null,
       plate: vehicle?.license_plate ?? null,
       driverName: driver?.name ?? null,
       dueDate: t.due_date,
@@ -97,6 +103,7 @@ export async function getTaskFeed(): Promise<FeedItem[]> {
       subtitle: `${label} · ${cName}`,
       companyId: d.company_id,
       companyName: cName,
+      handlerId: companyHandler.get(d.company_id) ?? null,
       plate: vehicle?.license_plate ?? null,
       driverName: driver?.name ?? null,
       dueDate: d.expiry_date,

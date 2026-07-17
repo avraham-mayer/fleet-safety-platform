@@ -13,6 +13,7 @@ export type Company = {
   ceo_name: string | null;
   prof_manager: string | null;
   address: string | null;
+  handler_id: string | null; // assigned safety officer (מטפל אחראי)
   created_at: string;
 };
 
@@ -70,6 +71,7 @@ export type Document = {
   doc_type: string;
   file_url: string | null;
   expiry_date: string | null;
+  issued_date: string | null; // בוצע בתאריך — set on renewal
   created_at: string;
 };
 
@@ -140,6 +142,7 @@ export type FeedItem = {
   subtitle: string; // e.g. plate / driver · company
   companyId: string | null;
   companyName: string;
+  handlerId: string | null; // the company's assigned officer
   plate: string | null;
   driverName: string | null;
   dueDate: string | null;

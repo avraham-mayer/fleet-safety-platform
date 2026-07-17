@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import BackLink from "@/components/BackLink";
 import InspectionWizard from "@/components/InspectionWizard";
 import type { ChecklistTemplate, Company, Driver, Vehicle } from "@/lib/types";
 
@@ -42,12 +43,15 @@ export default async function InspectPage({
   const { company, ...vehicleRow } = vehicle as Vehicle & { company: Company };
 
   return (
-    <InspectionWizard
-      vehicle={vehicleRow}
-      company={company}
-      drivers={(drivers ?? []) as Driver[]}
-      template={template as ChecklistTemplate}
-      taskId={taskId ?? null}
-    />
+    <div className="space-y-4">
+      <BackLink confirm="לצאת מהבדיקה? הנתונים שהוזנו לא יישמרו." />
+      <InspectionWizard
+        vehicle={vehicleRow}
+        company={company}
+        drivers={(drivers ?? []) as Driver[]}
+        template={template as ChecklistTemplate}
+        taskId={taskId ?? null}
+      />
+    </div>
   );
 }

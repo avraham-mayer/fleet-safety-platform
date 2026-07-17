@@ -17,7 +17,10 @@ export default function LoginPage() {
     setError(null);
 
     const supabase = createClient();
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
 
     if (error) {
       setError("התחברות נכשלה. בדקו את הדוא״ל והסיסמה.");
@@ -25,7 +28,14 @@ export default function LoginPage() {
       return;
     }
 
-    router.push("/");
+    // Admins land in the management portal; officers in the task feed.
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("role")
+      .eq("id", data.user.id)
+      .single();
+
+    router.push(profile?.role === "admin" ? "/admin" : "/");
     router.refresh();
   }
 

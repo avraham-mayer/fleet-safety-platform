@@ -9,8 +9,10 @@ import { saveSignature } from "@/lib/actions/profile";
 // every training record. Required before the training flow can be used.
 export default function ProfileSignature({
   initialSignature,
+  returnTo = null,
 }: {
   initialSignature: string | null;
+  returnTo?: string | null;
 }) {
   const router = useRouter();
   const [signature, setSignature] = useState("");
@@ -25,7 +27,12 @@ export default function ProfileSignature({
     try {
       await saveSignature(signature);
       setSaved(true);
-      router.refresh();
+      // Came from a flow's signature gate → return there. Otherwise stay put.
+      if (returnTo) {
+        router.push(returnTo);
+      } else {
+        router.refresh();
+      }
     } catch {
       setError("שמירת החתימה נכשלה");
     } finally {

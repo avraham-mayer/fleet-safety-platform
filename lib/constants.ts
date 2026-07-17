@@ -38,12 +38,29 @@ export const TRAINING_MODULES: { type: string; title: string; material: string }
   },
 ];
 
-// Document types for the renewal flow (Flow 5).
-export const DOC_TYPES = [
+// Compliance document types, split by owning entity. Mirrors the legacy
+// system's per-vehicle treatment table and per-driver file. `doc_type` is
+// free text in the DB — these only drive the admin form's options, so legacy
+// values (e.g. "ביטוח") keep working.
+export const VEHICLE_DOC_TYPES = [
   "רישיון רכב",
-  "ביטוח",
-  "טכוגרף",
+  "ביטוח חובה",
+  "תעודת כיול טכוגרף",
+  "דיסקיות טכוגרף חודשי",
+  "מבחן רישוי שנתי",
+  "אישור ביקורת חורף",
+  "רשיון מוביל",
+  "צילום רשיון מוביל חודשי",
+  "נספח לרשיון רכב",
+  "מסמכים נלווים",
+] as const;
+
+export const DRIVER_DOC_TYPES = [
   "רישיון נהיגה",
+  "תיק נהג",
+  "נספחים לנהג",
+  "הרשאות נהג",
+  "אישור הובלת חומ״ס",
 ] as const;
 
 // A document is "warning" severity within this many days of expiry.
