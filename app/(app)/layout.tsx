@@ -1,7 +1,21 @@
 import Link from "next/link";
 import SignOutButton from "@/components/SignOutButton";
+import { createClient } from "@/lib/supabase/server";
 
-export default function AppLayout({ children }: { children: React.ReactNode }) {
+export default async function AppLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  const { data: profile } = user
+    ? await supabase.from("profiles").select("role").eq("id", user.id).single()
+    : { data: null };
+  const isAdmin = profile?.role === "admin";
+
   return (
     <>
       <header className="sticky top-0 z-10 border-b border-slate-200 bg-white">
@@ -10,6 +24,14 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
             בדיקות בטיחות צי
           </Link>
           <nav className="flex items-center gap-1">
+            {isAdmin && (
+              <Link
+                href="/admin"
+                className="rounded-lg px-3 py-1.5 text-sm font-medium text-slate-600 transition hover:bg-slate-100"
+              >
+                ניהול
+              </Link>
+            )}
             <Link
               href="/profile"
               className="rounded-lg px-3 py-1.5 text-sm font-medium text-slate-600 transition hover:bg-slate-100"

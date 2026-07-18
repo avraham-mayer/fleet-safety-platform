@@ -8,9 +8,11 @@ import type { Document } from "@/lib/types";
 export default function DocumentRenewal({
   document,
   entityLabel,
+  defaultExpiry,
 }: {
   document: Document;
   entityLabel: string;
+  defaultExpiry?: string | null;
 }) {
   const router = useRouter();
   const [submitting, setSubmitting] = useState(false);
@@ -68,6 +70,7 @@ export default function DocumentRenewal({
             type="date"
             name="expiryDate"
             required
+            defaultValue={defaultExpiry ?? undefined}
             className="w-full rounded-lg border border-slate-300 px-3 py-2 text-slate-900 focus:border-blue-500 focus:outline-none"
           />
         </div>

@@ -72,6 +72,31 @@ select 'driver', d.id, d.company_id, 'רישיון נהיגה', date '2026-07-05
 from drivers d
 where d.name = 'יוסי כהן';
 
+-- ---------------------------------------------------------------------------
+-- Phase 3 sample data
+-- ---------------------------------------------------------------------------
+
+-- Doc-type catalog mirroring the legacy "טיפולים" taxonomy.
+insert into doc_types (entity_type, name, recurrence_months) values
+  ('vehicle', 'ביטוח חובה',                12),
+  ('vehicle', 'מבחן רישוי שנתי',           12),
+  ('vehicle', 'תעודת כיול טכוגרף',         24),
+  ('vehicle', 'אישור ביקורת חורף',         12),
+  ('vehicle', 'רשיון מוביל',               12),
+  ('vehicle', 'נספח לרשיון רכב',           12),
+  ('vehicle', 'צילום רשיון מוביל חודשי',   1),
+  ('vehicle', 'דיסקיות טכוגרף חודשי',      1),
+  ('vehicle', 'מסמכים נילווים',            null),
+  ('driver',  'תיק נהג',                   null),
+  ('driver',  'רישיון נהיגה',              12),
+  ('driver',  'הדרכת קיץ',                 12),
+  ('driver',  'הדרכת חורף',                12),
+  ('driver',  'לוח תמרורים',               12),
+  ('driver',  'שאלון קיץ',                 12),
+  ('driver',  'הנחיות בטיחות כללי',        12),
+  ('driver',  'נספחים לנהג',               null),
+  ('driver',  'פלט הרשאות נהגים',          12);
+
 -- Pending training tasks (materialized).
 insert into tasks (company_id, entity_type, entity_id, task_type, title, due_date)
 select d.company_id, 'driver', d.id, 'training', x.title, x.due_date

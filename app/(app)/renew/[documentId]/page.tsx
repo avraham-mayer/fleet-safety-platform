@@ -22,6 +22,21 @@ export default async function RenewPage({
 
   const document = doc as Document;
 
+  // Recurrence from the doc-type catalog → prefill the next expiry date.
+  let defaultExpiry: string | null = null;
+  if (document.doc_type_id) {
+    const { data: dt } = await supabase
+      .from("doc_types")
+      .select("recurrence_months")
+      .eq("id", document.doc_type_id)
+      .single();
+    if (dt?.recurrence_months) {
+      const next = new Date();
+      next.setMonth(next.getMonth() + dt.recurrence_months);
+      defaultExpiry = next.toISOString().slice(0, 10);
+    }
+  }
+
   // Resolve the owning entity's label for display.
   let entityLabel = "";
   if (document.entity_type === "vehicle") {
@@ -40,5 +55,11 @@ export default async function RenewPage({
     entityLabel = d?.name ?? "";
   }
 
-  return <DocumentRenewal document={document} entityLabel={entityLabel} />;
+  return (
+    <DocumentRenewal
+      document={document}
+      entityLabel={entityLabel}
+      defaultExpiry={defaultExpiry}
+    />
+  );
 }

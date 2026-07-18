@@ -13,6 +13,9 @@ export type Company = {
   ceo_name: string | null;
   prof_manager: string | null;
   address: string | null;
+  handler_id: string | null;
+  phone: string | null;
+  notes: string | null;
   created_at: string;
 };
 
@@ -29,6 +32,16 @@ export type Vehicle = {
   tachograph_expiry: string | null;
   registration_expiry: string | null;
   status: VehicleStatus;
+  handler_id: string | null;
+  vin: string | null;
+  vehicle_type: string | null;
+  registration_date: string | null;
+  total_weight_kg: number | null;
+  self_weight_kg: number | null;
+  payload_weight_kg: number | null;
+  monthly_fee: number | null;
+  policy_type: string | null;
+  notes: string | null;
   created_at: string;
 };
 
@@ -40,6 +53,17 @@ export type Driver = {
   id_number: string | null;
   license_expiry: string | null;
   hazmat_certified: boolean;
+  handler_id: string | null;
+  license_type: string | null;
+  license_restrictions: string | null;
+  license_issue_year: number | null;
+  address: string | null;
+  city: string | null;
+  phone: string | null;
+  email: string | null;
+  birth_date: string | null;
+  work_start_date: string | null;
+  notes: string | null;
   created_at: string;
 };
 
@@ -62,14 +86,86 @@ export type ChecklistTemplate = {
   created_at: string;
 };
 
+export type DocType = {
+  id: string;
+  entity_type: EntityType;
+  name: string;
+  recurrence_months: number | null;
+  active: boolean;
+  created_at: string;
+};
+
 export type Document = {
   id: string;
   entity_type: EntityType;
   entity_id: string;
   company_id: string;
   doc_type: string;
+  doc_type_id: string | null;
   file_url: string | null;
   expiry_date: string | null;
+  created_at: string;
+};
+
+export type VehicleDriver = {
+  id: string;
+  vehicle_id: string;
+  driver_id: string;
+  assigned_at: string | null;
+  created_at: string;
+};
+
+export type Accident = {
+  id: string;
+  vehicle_id: string | null;
+  driver_id: string | null;
+  occurred_at: string;
+  description: string | null;
+  location: string | null;
+  file_url: string | null;
+  notes: string | null;
+  created_at: string;
+};
+
+export type Violation = {
+  id: string;
+  driver_id: string;
+  occurred_at: string;
+  violation_type: string | null;
+  fine_amount: number | null;
+  points: number | null;
+  notes: string | null;
+  created_at: string;
+};
+
+export type MedicalCheck = {
+  id: string;
+  driver_id: string;
+  check_type: string | null;
+  checked_at: string;
+  valid_until: string | null;
+  result: string | null;
+  notes: string | null;
+  created_at: string;
+};
+
+export type Course = {
+  id: string;
+  driver_id: string;
+  name: string;
+  completed_at: string | null;
+  valid_until: string | null;
+  certificate_url: string | null;
+  notes: string | null;
+  created_at: string;
+};
+
+export type TachographCheck = {
+  id: string;
+  driver_id: string;
+  checked_at: string;
+  period: string | null;
+  findings: string | null;
   created_at: string;
 };
 
@@ -145,4 +241,5 @@ export type FeedItem = {
   dueDate: string | null;
   severity: Severity;
   href: string;
+  handlerId: string | null;
 };

@@ -17,8 +17,8 @@ export async function getTaskFeed(): Promise<FeedItem[]> {
   const [{ data: companies }, { data: vehicles }, { data: drivers }] =
     await Promise.all([
       supabase.from("companies").select("id, name"),
-      supabase.from("vehicles").select("id, license_plate, company_id"),
-      supabase.from("drivers").select("id, name, company_id"),
+      supabase.from("vehicles").select("id, license_plate, company_id, handler_id"),
+      supabase.from("drivers").select("id, name, company_id, handler_id"),
     ]);
 
   const companyName = new Map((companies ?? []).map((c) => [c.id, c.name]));
@@ -40,6 +40,7 @@ export async function getTaskFeed(): Promise<FeedItem[]> {
       dueDate: null,
       severity: "warning",
       href: `/inspect/${v.id}`,
+      handlerId: v.handler_id,
     });
   }
 
@@ -71,6 +72,7 @@ export async function getTaskFeed(): Promise<FeedItem[]> {
         t.task_type === "training"
           ? `/train/${t.entity_id}?task=${t.id}`
           : `/inspect/${t.entity_id}?task=${t.id}&template=${t.template_id ?? ""}`,
+      handlerId: driver?.handler_id ?? vehicle?.handler_id ?? null,
     });
   }
 
@@ -102,6 +104,7 @@ export async function getTaskFeed(): Promise<FeedItem[]> {
       dueDate: d.expiry_date,
       severity: severityFor(d.expiry_date),
       href: `/renew/${d.id}`,
+      handlerId: driver?.handler_id ?? vehicle?.handler_id ?? null,
     });
   }
 

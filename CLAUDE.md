@@ -31,13 +31,17 @@ No test framework. Build verification needs placeholder env vars in `.env.local`
 ## Architecture
 
 ### Schema = hand-maintained, keep two places in sync
-Migrations `supabase/migrations/0001_init.sql` + `0002_phase2.sql` are the source
-of truth; `lib/types.ts` mirrors them as TS types. Edit both together. RLS =
-authenticated full access (small internal team), except `profiles` update-self.
+Migrations `supabase/migrations/0001_init.sql` + `0002_phase2.sql` + `0003_phase3.sql`
+are the source of truth; `lib/types.ts` mirrors them as TS types. Edit both together.
+RLS = authenticated full access (small internal team), except `profiles` update-self.
 Tables: companies, vehicles, drivers, inspections, inspection_checklist_lines,
-profiles, checklist_templates, documents, trainings, tasks. Signatures are base64
-data-URL text. Buckets: `defect-photos` (public), `vehicle-docs`/`documents` (private).
-A `handle_new_user` trigger auto-creates a `profiles` row per auth user.
+profiles, checklist_templates, documents, trainings, tasks, doc_types,
+vehicle_drivers, accidents, violations, medical_checks, courses, tachograph_checks.
+Companies/vehicles/drivers carry `handler_id` (→ profiles, the legacy מטפל אחראי).
+`doc_types` is the treatment/doc taxonomy; `recurrence_months` prefills the next
+expiry in the renew flow. Signatures are base64 data-URL text. Buckets:
+`defect-photos` (public), `vehicle-docs`/`documents` (private). A `handle_new_user`
+trigger auto-creates a `profiles` row per auth user.
 
 ### Alerts are HYBRID — derived + materialized (no cron)
 The dashboard feed (`lib/actions/tasks.ts:getTaskFeed`) merges three sources into
@@ -65,8 +69,21 @@ notes + defect-photo, per spec).
 `/train/[driverId]`, `/renew/[documentId]`, `/profile`. `/login` is public.
 `SignaturePad` (canvas → base64) is reused across inspection, training, profile.
 
-## Phase 3 (deferred, not yet built)
+## Phase 3: Desktop Admin Portal (`app/admin/`, built)
 
-Desktop Admin Portal: entity onboarding data-grids (companies/vehicles/drivers),
-baseline/recurrence scheduling UI, role-gated routing (admin vs officer — the
-`profiles.role` column exists; routing is not yet enforced).
+Modeled on the customer's legacy Windows program (company-tree navigation).
+Own route group outside `(app)` so it gets a wide desktop layout; auth still via
+`proxy.ts`. `app/admin/layout.tsx` role-gates server-side (non-admin → `/`) and
+every action in `lib/actions/admin.ts` re-checks via `requireAdmin()`. The
+officer header shows a "ניהול" link for admins only.
+
+- `/admin` — companies overview + create; `CompanyTree` sidebar everywhere.
+- `/admin/companies/[companyId]` — tabs: vehicles / drivers / alerts (reuses
+  `getTaskFeed`, filtered client-side in `AlertsPanel` by type/handler/date) / details.
+- `/admin/vehicles/[vehicleId]`, `/admin/drivers/[driverId]` — full entity cards:
+  edit form, documents/treatments (add via doc_types catalog), sub-record tables,
+  vehicle↔driver assignment, task scheduling (`scheduleTask`). `[id]="new"` renders
+  an empty create form (`?company=` preselects).
+- `/admin/settings/doc-types` — taxonomy management.
+- Generic sub-record CRUD: `saveRecord`/`deleteRecord` over the `RECORD_TABLES`
+  allowlist (accidents, violations, medical_checks, courses, tachograph_checks).
