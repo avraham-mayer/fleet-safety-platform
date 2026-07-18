@@ -14,6 +14,14 @@ inspections, driver trainings, and compliance-document renewals. Hebrew-first, R
 
 Stack: Next.js 16 App Router · TS · Tailwind v4 · Supabase (Postgres + Auth + Storage). No ORM.
 
+## Docs index (read the one matching your task)
+
+- `docs/ARCHITECTURE.md` — hybrid alerts, auth layers, task lifecycle, buckets
+- `docs/DEPLOYMENT.md` — Vercel + Supabase prod setup, rollback
+- `docs/MAINTENANCE.md` — runbook: schema changes, users, debugging table
+- `supabase/README.md` — full table reference, RLS philosophy
+- `app/README.md` · `lib/README.md` · `lib/actions/README.md` · `components/README.md` — per-directory deep dives
+
 ## Commands
 
 `node` is via nvm and NOT on PATH. Prefix every shell command, and force nvm's
