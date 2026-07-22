@@ -39,7 +39,7 @@ No test framework. Build verification needs placeholder env vars in `.env.local`
 ## Architecture
 
 ### Schema = hand-maintained, keep two places in sync
-Migrations `supabase/migrations/0001_init.sql` + `0002_phase2.sql` + `0003_phase3.sql`
+Migrations `supabase/migrations/0001_init.sql` … `0004_company_documents.sql`
 are the source of truth; `lib/types.ts` mirrors them as TS types. Edit both together.
 RLS = authenticated full access (small internal team), except `profiles` update-self.
 Tables: companies, vehicles, drivers, inspections, inspection_checklist_lines,

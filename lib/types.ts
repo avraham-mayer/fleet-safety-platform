@@ -4,6 +4,9 @@
 export type VehicleStatus = "active" | "pending";
 export type Role = "admin" | "officer";
 export type EntityType = "vehicle" | "driver";
+// Documents (and their catalog) can also attach at company level (0004);
+// tasks/inspections stay vehicle/driver-only — don't widen EntityType itself.
+export type DocEntityType = EntityType | "company";
 export type TaskType = "inspection" | "training" | "document";
 export type TaskStatus = "pending" | "resolved";
 
@@ -88,7 +91,7 @@ export type ChecklistTemplate = {
 
 export type DocType = {
   id: string;
-  entity_type: EntityType;
+  entity_type: DocEntityType;
   name: string;
   recurrence_months: number | null;
   active: boolean;
@@ -97,7 +100,7 @@ export type DocType = {
 
 export type Document = {
   id: string;
-  entity_type: EntityType;
+  entity_type: DocEntityType;
   entity_id: string;
   company_id: string;
   doc_type: string;

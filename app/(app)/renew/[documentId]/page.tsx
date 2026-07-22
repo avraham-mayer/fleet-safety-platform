@@ -39,7 +39,14 @@ export default async function RenewPage({
 
   // Resolve the owning entity's label for display.
   let entityLabel = "";
-  if (document.entity_type === "vehicle") {
+  if (document.entity_type === "company") {
+    const { data: c } = await supabase
+      .from("companies")
+      .select("name")
+      .eq("id", document.company_id)
+      .single();
+    entityLabel = c?.name ?? "";
+  } else if (document.entity_type === "vehicle") {
     const { data: v } = await supabase
       .from("vehicles")
       .select("license_plate")

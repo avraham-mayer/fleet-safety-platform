@@ -15,13 +15,23 @@ Two auth levels:
 
 | File | Function | What it does |
 |---|---|---|
-| `tasks.ts` | `getTaskFeed()` | READ: builds the merged feed (derived monthly queue + pending `tasks` + expiring documents), resolves company/plate/driver/handler labels, sorts expired→warning→ok. See [docs/ARCHITECTURE.md](../../docs/ARCHITECTURE.md). |
+| `tasks.ts` | `getTaskFeed(opts?)` | READ: builds the merged feed (derived monthly queue + pending `tasks` + expiring documents), resolves company/plate/driver/handler labels, sorts expired→warning→ok. `{ forHandlerId }` scopes it to companies where `companies.handler_id` matches (officer view); omit for the full feed (admin). See [docs/ARCHITECTURE.md](../../docs/ARCHITECTURE.md). |
+| `officer.ts` | `getMyCompanies` / `getCompanyStatus` / `getEntityDetail` | READ: officer status browsing (`/companies`, `/vehicles/[id]`, `/drivers/[id]`). Company-only scoping: officers see companies they handle, admins see all; out-of-scope lookups return null → 404. View-model types live here, not in `lib/types.ts`. |
 | `queue.ts` | `getMonthlyQueue()` | READ: active vehicles minus those with a completed monthly-template inspection in `currentCycleRange()`. |
 | `inspections.ts` | `submitInspection()` | One logical txn: persist wizard step-1/2 vehicle+driver edits → insert inspection (both signatures, template_id) → bulk-insert checklist lines → resolve linked task if any → `revalidatePath("/")`. |
 | `inspections.ts` | `uploadDefectPhoto()` | Upload to public `defect-photos` bucket, returns public URL. |
 | `trainings.ts` | `submitTraining()` | Insert training (officer signature auto-appended from `profiles.signature_url` — throws if not saved), resolve linked task, **auto-insert next year's training task** (+1 year due date). |
 | `documents.ts` | `renewDocument()` | Update `expiry_date` (+ optional file upload to private `documents` bucket), resolve any pending document task for the entity. Updating the expiry is itself what clears the derived alert. |
+| `documents.ts` | `addDocument()` | Field capture of a brand-new document: photo → private `documents` bucket, insert row attributed to vehicle/driver/company. `company_id` is derived server-side from the entity row, never trusted from the form. Expiry optional (undated docs never alert). |
 | `profile.ts` | `getMyProfile` / `getOfficerSignature` / `saveSignature` | Officer's reusable signature (base64 data-URL in `profiles.signature_url`). |
+
+## Admin: checklist templates (`templates.ts`)
+
+`saveTemplate` / `toggleTemplate` back `/admin/settings/templates`. Kept in
+their own file (with a deliberate copy of `requireAdmin`) instead of
+`admin.ts`. Items are edited as one-label-per-line text; on save, unchanged
+labels keep their existing `key` so historical
+`inspection_checklist_lines.parameter_name` stays comparable.
 
 ## Admin portal (`admin.ts` — every function starts with `requireAdmin()`)
 

@@ -54,3 +54,87 @@ export async function renewDocument(formData: FormData) {
 
   revalidatePath("/");
 }
+
+// Captures a brand-new document from the field: photo → private `documents`
+// bucket, then a row attributed to the vehicle/driver. company_id is derived
+// from the entity row server-side, never trusted from the form. Expiry is
+// optional — undated documents are stored but never raise feed alerts.
+export async function addDocument(formData: FormData) {
+  const entityType = String(formData.get("entityType") ?? "");
+  const entityId = String(formData.get("entityId") ?? "");
+  const docTypeId = String(formData.get("docTypeId") ?? "");
+  const expiryDate = String(formData.get("expiryDate") ?? "");
+  const file = formData.get("file");
+
+  if (
+    entityType !== "vehicle" &&
+    entityType !== "driver" &&
+    entityType !== "company"
+  )
+    throw new Error("סוג ישות לא חוקי");
+  if (!entityId) throw new Error("ישות לא נמצאה");
+  if (!docTypeId) throw new Error("יש לבחור סוג מסמך");
+  if (!(file instanceof File) || file.size === 0)
+    throw new Error("יש לצלם או לבחור קובץ");
+
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) throw new Error("נדרשת התחברות");
+
+  // Derive the owning company: for company docs the entity IS the company.
+  let companyId: string;
+  if (entityType === "company") {
+    const { data: company, error: companyError } = await supabase
+      .from("companies")
+      .select("id")
+      .eq("id", entityId)
+      .single();
+    if (companyError || !company) throw new Error("הישות לא נמצאה");
+    companyId = company.id;
+  } else {
+    const table = entityType === "vehicle" ? "vehicles" : "drivers";
+    const { data: entity, error: entityError } = await supabase
+      .from(table)
+      .select("company_id")
+      .eq("id", entityId)
+      .single();
+    if (entityError || !entity) throw new Error("הישות לא נמצאה");
+    companyId = entity.company_id;
+  }
+
+  const { data: docType, error: docTypeError } = await supabase
+    .from("doc_types")
+    .select("name")
+    .eq("id", docTypeId)
+    .single();
+  if (docTypeError || !docType) throw new Error("סוג המסמך לא נמצא");
+
+  const ext = file.name.split(".").pop() ?? "jpg";
+  const path = `${entityType}/${entityId}/${crypto.randomUUID()}.${ext}`;
+  const { error: uploadError } = await supabase.storage
+    .from("documents")
+    .upload(path, file, { contentType: file.type });
+  if (uploadError) throw uploadError;
+
+  const { error: insertError } = await supabase.from("documents").insert({
+    entity_type: entityType,
+    entity_id: entityId,
+    company_id: companyId,
+    doc_type: docType.name,
+    doc_type_id: docTypeId,
+    file_url: path,
+    expiry_date: expiryDate || null,
+  });
+  if (insertError) throw insertError;
+
+  revalidatePath("/");
+  revalidatePath(
+    entityType === "vehicle"
+      ? `/vehicles/${entityId}`
+      : entityType === "driver"
+        ? `/drivers/${entityId}`
+        : `/companies/${entityId}`,
+  );
+}

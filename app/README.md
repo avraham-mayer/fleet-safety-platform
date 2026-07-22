@@ -6,7 +6,12 @@ Three route groups, one auth wall:
 app/
 ├── login/            public — email/password sign-in
 ├── (app)/            officer app (mobile, max-w-3xl shell)
-│   ├── page.tsx              /            aggregated task feed
+│   ├── page.tsx              /            aggregated task feed (officers: scoped to their companies)
+│   ├── companies/            /companies   officer's assigned companies (status rollup)
+│   ├── companies/[companyId]/ /companies/… company status board: vehicles/drivers/company docs
+│   ├── vehicles/[vehicleId]/ /vehicles/…  officer vehicle card: docs, tasks, actions
+│   ├── drivers/[driverId]/   /drivers/…   officer driver card: docs, tasks, actions
+│   ├── documents/new/        /documents/new  photo-capture a new document (?entity_type&entity_id)
 │   ├── inspect/[vehicleId]/  /inspect/…   4-step inspection wizard
 │   ├── train/[driverId]/     /train/…     training flow (co-sign)
 │   ├── renew/[documentId]/   /renew/…     document renewal
@@ -16,7 +21,8 @@ app/
     ├── companies/[companyId]/         /admin/companies/…     tabs: vehicles/drivers/alerts/details
     ├── vehicles/[vehicleId]/          /admin/vehicles/…      full vehicle card ("new" = create form)
     ├── drivers/[driverId]/            /admin/drivers/…       full driver card ("new" = create form)
-    └── settings/doc-types/            /admin/settings/…      treatment taxonomy
+    ├── settings/doc-types/            /admin/settings/…      treatment taxonomy
+    └── settings/templates/            /admin/settings/…      checklist-template management
 ```
 
 ## Auth layers

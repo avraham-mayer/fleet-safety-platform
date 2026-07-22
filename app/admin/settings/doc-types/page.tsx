@@ -34,6 +34,7 @@ export default async function DocTypesPage() {
             <select name="entity_type" className={inputCls}>
               <option value="vehicle">רכב</option>
               <option value="driver">נהג</option>
+              <option value="company">חברה</option>
             </select>
           </Field>
           <Field label="מרווח חידוש (חודשים)">
@@ -53,7 +54,13 @@ export default async function DocTypesPage() {
           {docTypes.map((dt) => (
             <tr key={dt.id} className="transition hover:bg-slate-50">
               <td className={tdCls}>{dt.name}</td>
-              <td className={tdCls}>{dt.entity_type === "vehicle" ? "רכב" : "נהג"}</td>
+              <td className={tdCls}>
+                {dt.entity_type === "vehicle"
+                  ? "רכב"
+                  : dt.entity_type === "driver"
+                    ? "נהג"
+                    : "חברה"}
+              </td>
               <td className={tdCls}>
                 {dt.recurrence_months ? `${dt.recurrence_months} חודשים` : "—"}
               </td>

@@ -9,19 +9,26 @@ import type { Document, FeedItem, Task } from "@/lib/types";
 //   (b) materialized pending `tasks` (trainings + scheduled inspections)
 //   (c) derived expiring `documents`
 // Returns a flat, sorted FeedItem[]. The dashboard filters it client-side.
-export async function getTaskFeed(): Promise<FeedItem[]> {
+// Pass forHandlerId to scope the feed to companies handled by that officer
+// (companies.handler_id); admin callers omit it and get the full feed.
+export async function getTaskFeed(opts?: {
+  forHandlerId?: string;
+}): Promise<FeedItem[]> {
   const supabase = await createClient();
-  const items: FeedItem[] = [];
+  let items: FeedItem[] = [];
 
   // Lookups for labels/filtering.
   const [{ data: companies }, { data: vehicles }, { data: drivers }] =
     await Promise.all([
-      supabase.from("companies").select("id, name"),
+      supabase.from("companies").select("id, name, handler_id"),
       supabase.from("vehicles").select("id, license_plate, company_id, handler_id"),
       supabase.from("drivers").select("id, name, company_id, handler_id"),
     ]);
 
   const companyName = new Map((companies ?? []).map((c) => [c.id, c.name]));
+  const companyHandler = new Map(
+    (companies ?? []).map((c) => [c.id, c.handler_id]),
+  );
   const vehicleById = new Map((vehicles ?? []).map((v) => [v.id, v]));
   const driverById = new Map((drivers ?? []).map((d) => [d.id, d]));
 
@@ -86,11 +93,13 @@ export async function getTaskFeed(): Promise<FeedItem[]> {
     .lte("expiry_date", cutoff.toISOString().slice(0, 10));
 
   for (const d of (docs ?? []) as Document[]) {
-    const isDriver = d.entity_type === "driver";
-    const driver = isDriver ? driverById.get(d.entity_id) : undefined;
-    const vehicle = !isDriver ? vehicleById.get(d.entity_id) : undefined;
+    const driver =
+      d.entity_type === "driver" ? driverById.get(d.entity_id) : undefined;
+    const vehicle =
+      d.entity_type === "vehicle" ? vehicleById.get(d.entity_id) : undefined;
     const cName = companyName.get(d.company_id) ?? "";
-    const label = driver?.name ?? vehicle?.license_plate ?? "";
+    // Company-level documents (0004) label as the company itself.
+    const label = driver?.name ?? vehicle?.license_plate ?? cName;
 
     items.push({
       id: `document-${d.id}`,
@@ -106,6 +115,17 @@ export async function getTaskFeed(): Promise<FeedItem[]> {
       href: `/renew/${d.id}`,
       handlerId: driver?.handler_id ?? vehicle?.handler_id ?? null,
     });
+  }
+
+  // Company-only scoping: an officer sees items whose company they handle.
+  // Items without a company (rare: tasks rows with null company_id) stay
+  // admin-only.
+  if (opts?.forHandlerId) {
+    items = items.filter(
+      (i) =>
+        i.companyId != null &&
+        companyHandler.get(i.companyId) === opts.forHandlerId,
+    );
   }
 
   // Most urgent first: expired → warning → ok, then by due date.

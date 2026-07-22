@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<TfrxReport Version="6.2.1" DotMatrixReport="False" IniFile="\Software\Fast Reports" PreviewOptions.Buttons="4095" PreviewOptions.Zoom="1" PrintOptions.Printer="Default" PrintOptions.PrintOnSheet="0" ReportOptions.CreateDate="43482.4606358333" ReportOptions.Description.Text="" ReportOptions.LastChange="43483.7504026273" ScriptLanguage="PascalScript" ScriptText.Text="&#13;&#10;begin&#13;&#10;&#13;&#10;end.">
+  <Datasets>
+    <item DataSet="dmCarList.frdbCarList" DataSetName="frdbCarList"/>
+  </Datasets>
+  <Styles>
+    <item Name="Title" Font.Charset="1" Font.Color="-16777208" Font.Height="-16" Font.Name="Arial" Font.Style="1" Frame.Typ="0"/>
+    <item Name="Header" Font.Charset="1" Font.Color="-16777208" Font.Height="-13" Font.Name="Arial" Font.Style="1" Frame.Typ="0"/>
+    <item Name="Group header" Font.Charset="1" Font.Color="-16777208" Font.Height="-13" Font.Name="Arial" Font.Style="0" Frame.Typ="8"/>
+    <item Name="Data" Font.Charset="1" Font.Color="-16777208" Font.Height="-13" Font.Name="Arial" Font.Style="0" Frame.Typ="0"/>
+    <item Name="Group footer" Font.Charset="1" Font.Color="-16777208" Font.Height="-13" Font.Name="Arial" Font.Style="0" Frame.Typ="4"/>
+    <item Name="Header line" Font.Charset="1" Font.Color="-16777208" Font.Height="-13" Font.Name="Arial" Font.Style="0" Frame.Typ="8" Frame.Width="2"/>
+  </Styles>
+  <TfrxDataPage Name="Data" Height="1000" Left="0" Top="0" Width="1000"/>
+  <TfrxReportPage Name="Page1" PaperWidth="210" PaperHeight="297" PaperSize="9" LeftMargin="10" RightMargin="10" TopMargin="10" BottomMargin="10" ColumnWidth="0" ColumnPositions.Text="" Frame.Typ="0" HGuides.Text="" VGuides.Text="">
+    <TfrxReportTitle Name="ReportTitle1" FillType="ftBrush" FillGap.Top="0" FillGap.Left="0" FillGap.Bottom="0" FillGap.Right="0" Frame.Typ="0" Height="26.45671" Left="0" Top="18.89765" Width="718.1107">
+      <TfrxMemoView Name="Memo1" Align="baWidth" AllowVectorExport="True" Left="0" Top="0" Width="718.1107" Height="22.67718" Font.Charset="1" Font.Color="-16777208" Font.Height="-16" Font.Name="Arial" Font.Style="1" Frame.Typ="0" HAlign="haCenter" ParentFont="False" Style="Title" VAlign="vaCenter" Text="דו&#34;ח רכבים"/>
+    </TfrxReportTitle>
+    <TfrxPageHeader Name="PageHeader1" FillType="ftBrush" FillGap.Top="0" FillGap.Left="0" FillGap.Bottom="0" FillGap.Right="0" Frame.Typ="0" Height="22.67718" Left="0" Top="68.03154" Width="718.1107">
+      <TfrxMemoView Name="Memo2" AllowVectorExport="True" Left="0" Top="0" Width="718.110236220472" Height="22.67718" Font.Charset="1" Font.Color="-16777208" Font.Height="-13" Font.Name="Arial" Font.Style="0" Frame.Typ="8" Frame.Width="2" ParentFont="False" Style="Header line" Text=""/>
+      <TfrxMemoView Name="Memo3" AllowVectorExport="True" Left="0" Top="0" Width="40.34545858" Height="22.67718" Font.Charset="1" Font.Color="-16777208" Font.Height="-13" Font.Name="Arial" Font.Style="1" Frame.Typ="0" HAlign="haRight" ParentFont="False" Style="Header" Text="מוקפא"/>
+      <TfrxMemoView Name="Memo4" AllowVectorExport="True" Left="40.34545858" Top="0" Width="144.14572474" Height="22.67718" Font.Charset="1" Font.Color="-16777208" Font.Height="-13" Font.Name="Arial" Font.Style="1" Frame.Typ="0" HAlign="haRight" ParentFont="False" Style="Header" Text="איש קשר"/>
+      <TfrxMemoView Name="Memo5" AllowVectorExport="True" Left="184.49118332" Top="0" Width="164.45491849" Height="22.67718" Font.Charset="1" Font.Color="-16777208" Font.Height="-13" Font.Name="Arial" Font.Style="1" Frame.Typ="0" HAlign="haRight" ParentFont="False" Style="Header" Text="שם החברה"/>
+      <TfrxMemoView Name="Memo6" AllowVectorExport="True" Left="348.94610181" Top="0" Width="121.87290673" Height="22.67718" Font.Charset="1" Font.Color="-16777208" Font.Height="-13" Font.Name="Arial" Font.Style="1" Frame.Typ="0" HAlign="haRight" ParentFont="False" Style="Header" Text="שם היצרן"/>
+      <TfrxMemoView Name="Memo7" AllowVectorExport="True" Left="470.81900854" Top="0" Width="113.03659754" Height="22.67718" Font.Charset="1" Font.Color="-16777208" Font.Height="-13" Font.Name="Arial" Font.Style="1" Frame.Typ="0" HAlign="haRight" ParentFont="False" Style="Header" Text="סוג רכב"/>
+      <TfrxMemoView Name="Memo8" AllowVectorExport="True" Left="583.85560608" Top="0" Width="64.76366863" Height="22.67718" Font.Charset="1" Font.Color="-16777208" Font.Height="-13" Font.Name="Arial" Font.Style="1" Frame.Typ="0" HAlign="haRight" ParentFont="False" Style="Header" Text="מס' רישוי"/>
+      <TfrxMemoView Name="Memo9" AllowVectorExport="True" Left="648.6192747" Top="0" Width="69.49096152" Height="22.67718" Font.Charset="1" Font.Color="-16777208" Font.Height="-13" Font.Name="Arial" Font.Style="1" Frame.Typ="0" HAlign="haRight" ParentFont="False" Style="Header" Text="מס' סידורי"/>
+    </TfrxPageHeader>
+    <TfrxMasterData Name="MasterData1" FillType="ftBrush" FillGap.Top="0" FillGap.Left="0" FillGap.Bottom="0" FillGap.Right="0" Frame.Typ="0" Height="18.89765" Left="0" Top="151.1812" Width="718.1107" ColumnWidth="0" ColumnGap="0" DataSet="dmCarList.frdbCarList" DataSetName="frdbCarList" RowCount="0">
+      <TfrxMemoView Name="Memo10" AllowVectorExport="True" Left="0" Top="0" Width="40.34545858" Height="18.89765" DataSet="dmCarList.frdbCarList" DataSetName="frdbCarList" Font.Charset="1" Font.Color="-16777208" Font.Height="-13" Font.Name="Arial" Font.Style="0" Frame.Typ="0" HAlign="haRight" ParentFont="False" Style="Data" Text="[IIF(&#60;frdbCarList.&#34;Freze&#34;&#62;=False, 'לא', 'כן')]"/>
+      <TfrxMemoView Name="Memo11" AllowVectorExport="True" Left="40.34545858" Top="0" Width="144.14572474" Height="18.89765" DataField="Contact" DataSet="dmCarList.frdbCarList" DataSetName="frdbCarList" Font.Charset="1" Font.Color="-16777208" Font.Height="-13" Font.Name="Arial" Font.Style="0" Frame.Typ="0" HAlign="haRight" ParentFont="False" Style="Data" Text="[frdbCarList.&#34;Contact&#34;]"/>
+      <TfrxMemoView Name="Memo12" AllowVectorExport="True" Left="184.49118332" Top="0" Width="164.45491849" Height="18.89765" DataField="Shem" DataSet="dmCarList.frdbCarList" DataSetName="frdbCarList" Font.Charset="1" Font.Color="-16777208" Font.Height="-13" Font.Name="Arial" Font.Style="0" Frame.Typ="0" HAlign="haRight" ParentFont="False" Style="Data" Text="[frdbCarList.&#34;Shem&#34;]"/>
+      <TfrxMemoView Name="Memo13" AllowVectorExport="True" Left="348.94610181" Top="0" Width="121.87290673" Height="18.89765" DataField="Producer" DataSet="dmCarList.frdbCarList" DataSetName="frdbCarList" Font.Charset="1" Font.Color="-16777208" Font.Height="-13" Font.Name="Arial" Font.Style="0" Frame.Typ="0" HAlign="haRight" ParentFont="False" Style="Data" Text="[frdbCarList.&#34;Producer&#34;]"/>
+      <TfrxMemoView Name="Memo14" AllowVectorExport="True" Left="470.81900854" Top="0" Width="113.03659754" Height="18.89765" DataField="Type" DataSet="dmCarList.frdbCarList" DataSetName="frdbCarList" Font.Charset="1" Font.Color="-16777208" Font.Height="-13" Font.Name="Arial" Font.Style="0" Frame.Typ="0" HAlign="haRight" ParentFont="False" Style="Data" Text="[frdbCarList.&#34;Type&#34;]"/>
+      <TfrxMemoView Name="Memo15" AllowVectorExport="True" Left="583.85560608" Top="0" Width="64.76366863" Height="18.89765" DataField="Number" DataSet="dmCarList.frdbCarList" DataSetName="frdbCarList" Font.Charset="1" Font.Color="-16777208" Font.Height="-13" Font.Name="Arial" Font.Style="0" Frame.Typ="0" HAlign="haRight" ParentFont="False" Style="Data" Text="[frdbCarList.&#34;Number&#34;]"/>
+      <TfrxMemoView Name="Memo16" AllowVectorExport="True" Left="648.6192747" Top="0" Width="69.49096152" Height="18.89765" DataField="CodCar" DataSet="dmCarList.frdbCarList" DataSetName="frdbCarList" Font.Charset="1" Font.Color="-16777208" Font.Height="-13" Font.Name="Arial" Font.Style="0" Frame.Typ="0" HAlign="haRight" ParentFont="False" Style="Data" Text="[frdbCarList.&#34;CodCar&#34;]"/>
+    </TfrxMasterData>
+    <TfrxPageFooter Name="PageFooter1" FillType="ftBrush" FillGap.Top="0" FillGap.Left="0" FillGap.Bottom="0" FillGap.Right="0" Frame.Typ="0" Height="26.45671" Left="0" Top="230.55133" Width="718.1107">
+      <TfrxMemoView Name="Memo17" Align="baWidth" AllowVectorExport="True" Left="0" Top="0" Width="718.1107" Height="0" Frame.Typ="4" Frame.Width="2" Text=""/>
+      <TfrxMemoView Name="Memo18" AllowVectorExport="True" Left="0" Top="1" Width="0" Height="22.67718" AutoWidth="True" Frame.Typ="0" Text="[Date] [Time]"/>
+      <TfrxMemoView Name="Memo19" Align="baRight" AllowVectorExport="True" Left="642.5201" Top="1" Width="75.5906" Height="22.67718" Frame.Typ="0" HAlign="haRight" Text="דף [Page#]"/>
+    </TfrxPageFooter>
+  </TfrxReportPage>
+</TfrxReport>

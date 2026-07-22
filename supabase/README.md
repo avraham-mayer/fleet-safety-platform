@@ -11,6 +11,7 @@ Migrations are the source of truth; there is no ORM and no codegen.
 | `migrations/0001_init.sql` | Core: companies, vehicles, drivers, inspections, inspection_checklist_lines; RLS; `defect-photos` + `vehicle-docs` buckets |
 | `migrations/0002_phase2.sql` | profiles (+`handle_new_user` trigger), checklist_templates, documents, trainings, tasks; `documents` bucket |
 | `migrations/0003_phase3.sql` | Legacy-program parity: handler_id on the 3 core entities, extended vehicle/driver fields, doc_types, vehicle_drivers, accidents, violations, medical_checks, courses, tachograph_checks |
+| `migrations/0004_company_documents.sql` | Widens `documents.entity_type` + `doc_types.entity_type` CHECKs to allow `'company'` (fleet-level docs); `tasks` stays vehicle/driver-only |
 | `seed.sql` | Optional sample data + the doc_types catalog (18 legacy treatment types) |
 
 Never edit an applied migration — add a new `000N_*.sql`. Apply via the

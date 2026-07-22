@@ -11,6 +11,9 @@ Officer-app components at the top level; admin-portal components in
 | `InspectionWizard.tsx` | `/inspect/[vehicleId]` | 4 steps: vehicle details → driver details + safety briefing ack → checklist → summary + dual signatures. **Every checklist item starts as Pass** — the officer only flips failures, which reveal notes + defect-photo upload (`uploadDefectPhoto`). Checklist items come from the DB template, never hardcoded. |
 | `TrainingFlow.tsx` | `/train/[driverId]` | Shows module material (from `TRAINING_MODULES`), driver signs; officer signature auto-appended server-side from the profile. |
 | `DocumentRenewal.tsx` | `/renew/[documentId]` | New expiry date (+ optional photo). `defaultExpiry` prop = prefill computed from `doc_types.recurrence_months`. |
+| `DocumentCapture.tsx` | `/documents/new` | Capture a brand-new document: doc-type select (prefills expiry from `recurrence_months`), camera input, optional expiry → `addDocument`. |
+| `EntityDetailCard.tsx` | `/vehicles/[id]`, `/drivers/[id]` | **Server component.** Officer entity card: monthly chip, documents with severity, pending tasks, action buttons (inspect/train, add document). |
+| `StatusChips.tsx` | officer status pages | **Server-safe.** `SeverityChip` (null-tolerant) + `MonthlyChip`; palette imported from `admin/ui.tsx` `SEVERITY_CHIP`. |
 | `SignaturePad.tsx` | inspection, training, profile | Canvas → base64 data-URL. **The one shared signature primitive** — reuse it, don't add another. |
 | `ProfileSignature.tsx` | `/profile` | Save/replace the officer's reusable signature. |
 | `SignOutButton.tsx` | both headers | Supabase sign-out + redirect. |

@@ -33,6 +33,12 @@ export default async function AppLayout({
               </Link>
             )}
             <Link
+              href="/companies"
+              className="rounded-lg px-3 py-1.5 text-sm font-medium text-slate-600 transition hover:bg-slate-100"
+            >
+              חברות
+            </Link>
+            <Link
               href="/profile"
               className="rounded-lg px-3 py-1.5 text-sm font-medium text-slate-600 transition hover:bg-slate-100"
             >
