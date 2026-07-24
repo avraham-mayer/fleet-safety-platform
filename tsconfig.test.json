@@ -1,0 +1,9 @@
+{
+  "//": "Editor/type-aware config for test files. The main tsconfig excludes tests so `next build` (which typechecks app code) doesn't choke on Vitest's bundled Vite types. Vitest itself runs tests via esbuild and is the source of truth; this file just gives editors jest-dom + vitest globals.",
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "types": ["vitest/globals", "@testing-library/jest-dom"]
+  },
+  "include": ["test/**/*.ts", "**/*.test.ts", "**/*.test.tsx"],
+  "exclude": ["node_modules"]
+}

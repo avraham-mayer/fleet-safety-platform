@@ -32,9 +32,40 @@ export NVM_DIR="$HOME/.nvm"; . "$NVM_DIR/nvm.sh"; export PATH="$HOME/.nvm/versio
 - `npm run dev` — dev server
 - `npm run build` — prod build (also typechecks); needs a `.env.local` to exist
 - `npm run lint` — ESLint
+- `npm test` — Vitest (run once); `npm run test:watch` — watch mode
 
-No test framework. Build verification needs placeholder env vars in `.env.local`
-(real values for runtime). See `README.md` for Supabase setup.
+Build verification needs placeholder env vars in `.env.local` (real values for
+runtime). See `README.md` for Supabase setup.
+
+## Testing is mandatory — Test-Driven Development
+
+**Every behavioural change ships with tests, written test-first.** No feature or
+bug-fix merges without them. This is enforced by CI (`.github/workflows/ci.yml`
+runs lint + `npm test` + build on every PR) and by branch protection on `main`.
+
+TDD loop:
+1. Write a failing test that pins the desired behaviour (red).
+2. Write the minimum code to pass it (green).
+3. Refactor with the test as a safety net.
+
+Stack: **Vitest + React Testing Library** (`vitest.config.ts`, jsdom, `@/` alias
+via `vite-tsconfig-paths`, matchers in `test/setup.ts`). Playwright e2e is a
+later addition — see `docs/TODO-PARITY.md`.
+
+- Test files live next to their source as `*.test.ts(x)`.
+- **Always testable, no DB needed:** pure logic + view-models — `lib/cycle.ts`,
+  `lib/expiry.ts`, feed aggregation/sorting, form-parsing helpers, and component
+  rendering (RTL). Prefer extracting logic out of Supabase-coupled server actions
+  into pure functions so it can be unit-tested directly.
+- **Server actions / RLS** that hit Supabase: test the pure parts; mock the
+  client for the rest. Don't hit the live project from tests.
+- Run `npm test` before every commit; keep the suite green.
+
+## Workflow — branches, PRs, CI
+
+`main` is the protected trunk. **One branch per feature/fix off `main`**
+(`feat/…`, `fix/…`, `chore/…`) → write tests first → push → open a PR → CI must
+be green → review → merge → delete the branch. Never commit straight to `main`.
 
 ## Architecture
 
