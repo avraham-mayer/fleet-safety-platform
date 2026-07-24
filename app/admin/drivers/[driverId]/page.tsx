@@ -156,9 +156,17 @@ export default async function DriverPage({
           )}
         </div>
         {!isNew && (
-          <Link href={`/train/${driver!.id}`} className={submitCls}>
-            ביצוע הדרכה
-          </Link>
+          <div className="flex gap-2">
+            <Link
+              href={`/admin/reports/driver/${driver!.id}`}
+              className="rounded-lg px-4 py-1.5 text-sm font-semibold text-slate-700 ring-1 ring-slate-300 hover:bg-slate-100"
+            >
+              כרטיס להדפסה
+            </Link>
+            <Link href={`/train/${driver!.id}`} className={submitCls}>
+              ביצוע הדרכה
+            </Link>
+          </div>
         )}
       </div>
 

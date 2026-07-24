@@ -8,7 +8,7 @@ Officer-app components at the top level; admin-portal components in
 | Component | Used by | Notes |
 |---|---|---|
 | `TaskFeed.tsx` | `/` | Renders `FeedItem[]` with red/amber/green severity chips; client-side filters (company / plate / driver text). The feed itself is built server-side by `getTaskFeed()`. |
-| `InspectionWizard.tsx` | `/inspect/[vehicleId]` | 4 steps: vehicle details → driver details + safety briefing ack → checklist → summary + dual signatures. **Every checklist item starts as Pass** — the officer only flips failures, which reveal notes + defect-photo upload (`uploadDefectPhoto`). Checklist items come from the DB template, never hardcoded. |
+| `InspectionWizard.tsx` | `/inspect/[vehicleId]` | 4 steps: vehicle details (incl. **odometer/mileage** capture → `vehicles.mileage`) → driver details + safety briefing ack → checklist → summary + dual signatures. **Every checklist item starts as Pass** — the officer only flips failures, which reveal notes + defect-photo upload (`uploadDefectPhoto`). Checklist items come from the DB template, never hardcoded. |
 | `TrainingFlow.tsx` | `/train/[driverId]` | Shows module material (from `TRAINING_MODULES`), driver signs; officer signature auto-appended server-side from the profile. |
 | `DocumentRenewal.tsx` | `/renew/[documentId]` | New expiry date (+ optional photo). `defaultExpiry` prop = prefill computed from `doc_types.recurrence_months`. |
 | `DocumentCapture.tsx` | `/documents/new` | Capture a brand-new document: doc-type select (prefills expiry from `recurrence_months`), camera input, optional expiry → `addDocument`. |
@@ -25,6 +25,9 @@ Officer-app components at the top level; admin-portal components in
 | `CompanyTree.tsx` | Sidebar: search box + alphabetical company list (mirrors the legacy Windows program's tree). Active item via `useParams`. |
 | `AlertsPanel.tsx` | Legacy-style alerts screen: filters a `FeedItem[]` client-side by kind (inspection/training/document), handler, and date range (items without a due date pass date filters). Server side does only the company filter. |
 | `DeleteButton.tsx` | Confirm-before-submit form wrapper: `action` + hidden `fields` + `window.confirm(confirmText)`. Use for every destructive admin action. |
+| `ArchiveButton.tsx` | Archive/restore submit wrapper. `mode="archive"` prompts for a reason (`window.prompt` → hidden `archive_reason`); `mode="restore"` just submits. Backs `archiveRecord`/`unarchiveRecord` over the `{companies,vehicles,drivers}` allowlist. |
+| `PrintButton.tsx` | Screen-only (`.no-print`) button that calls `window.print()`. Our lightweight stand-in for FastReport PDF export — see [app/admin/reports/README](../app/admin/reports/README.md). |
+| `reportBits.tsx` | **Server-safe** print-report primitives: `ReportShell`, `Section`, `KV`, `MiniTable`, `fmtDate`. Build every printable dossier from these. |
 | `ui.tsx` | **Server-safe** shared primitives: `Card`, `Field`, `Table`, `SeverityChip`, and the `inputCls`/`submitCls`/`thCls`/`tdCls` class strings. Extend this before inventing new one-off styles. |
 
 ## Conventions

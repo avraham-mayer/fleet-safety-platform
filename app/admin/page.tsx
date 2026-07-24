@@ -1,8 +1,9 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
-import { saveCompany } from "@/lib/actions/admin";
+import { saveCompany, unarchiveRecord } from "@/lib/actions/admin";
+import ArchiveButton from "@/components/admin/ArchiveButton";
 import { Card, Field, inputCls, submitCls, Table, tdCls } from "@/components/admin/ui";
-import type { Profile } from "@/lib/types";
+import type { Company, Profile } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
 
@@ -10,17 +11,23 @@ export const dynamic = "force-dynamic";
 export default async function AdminHomePage({
   searchParams,
 }: {
-  searchParams: Promise<{ new?: string }>;
+  searchParams: Promise<{ new?: string; archived?: string }>;
 }) {
-  const { new: showNew } = await searchParams;
+  const { new: showNew, archived } = await searchParams;
+  const showArchived = archived === "1";
   const supabase = await createClient();
+
+  let companiesQuery = supabase.from("companies").select("*").order("name");
+  companiesQuery = showArchived
+    ? companiesQuery.not("archived_at", "is", null)
+    : companiesQuery.is("archived_at", null);
 
   const [{ data: companies }, { data: profiles }, { count: vehicleCount }, { count: driverCount }] =
     await Promise.all([
-      supabase.from("companies").select("*").order("name"),
+      companiesQuery,
       supabase.from("profiles").select("*").order("full_name"),
-      supabase.from("vehicles").select("id", { count: "exact", head: true }),
-      supabase.from("drivers").select("id", { count: "exact", head: true }),
+      supabase.from("vehicles").select("id", { count: "exact", head: true }).is("archived_at", null),
+      supabase.from("drivers").select("id", { count: "exact", head: true }).is("archived_at", null),
     ]);
 
   const handlerName = new Map(
@@ -37,11 +44,19 @@ export default async function AdminHomePage({
             {driverCount ?? 0} נהגים
           </p>
         </div>
-        {!showNew && (
-          <Link href="/admin?new=1" className={submitCls}>
-            + חברה חדשה
+        <div className="flex items-center gap-2">
+          <Link
+            href={showArchived ? "/admin" : "/admin?archived=1"}
+            className="rounded-lg px-3 py-1.5 text-sm font-medium text-slate-600 hover:bg-slate-100"
+          >
+            {showArchived ? "→ חברות פעילות" : "ארכיון חברות ←"}
           </Link>
-        )}
+          {!showNew && !showArchived && (
+            <Link href="/admin?new=1" className={submitCls}>
+              + חברה חדשה
+            </Link>
+          )}
+        </div>
       </div>
 
       {showNew && (
@@ -92,10 +107,17 @@ export default async function AdminHomePage({
 
       <Card>
         <Table
-          headers={["שם החברה", 'מנכ"ל', "מנהל מקצועי", "טלפון", "מטפל אחראי"]}
+          headers={[
+            "שם החברה",
+            'מנכ"ל',
+            "מנהל מקצועי",
+            "טלפון",
+            "מטפל אחראי",
+            ...(showArchived ? [""] : []),
+          ]}
           empty={(companies ?? []).length === 0}
         >
-          {(companies ?? []).map((c) => (
+          {((companies ?? []) as Company[]).map((c) => (
             <tr key={c.id} className="transition hover:bg-slate-50">
               <td className={tdCls}>
                 <Link
@@ -111,6 +133,15 @@ export default async function AdminHomePage({
               <td className={tdCls}>
                 {c.handler_id ? (handlerName.get(c.handler_id) ?? "—") : "—"}
               </td>
+              {showArchived && (
+                <td className={`${tdCls} text-left`}>
+                  <ArchiveButton
+                    action={unarchiveRecord}
+                    fields={{ table: "companies", id: c.id }}
+                    mode="restore"
+                  />
+                </td>
+              )}
             </tr>
           ))}
         </Table>

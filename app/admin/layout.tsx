@@ -29,6 +29,7 @@ export default async function AdminLayout({
   const { data: companies } = await supabase
     .from("companies")
     .select("id, name")
+    .is("archived_at", null)
     .order("name");
 
   return (
@@ -45,6 +46,12 @@ export default async function AdminLayout({
                 className="rounded-lg px-3 py-1.5 text-sm font-medium text-slate-600 transition hover:bg-slate-100"
               >
                 פיד משימות
+              </Link>
+              <Link
+                href="/admin/reports"
+                className="rounded-lg px-3 py-1.5 text-sm font-medium text-slate-600 transition hover:bg-slate-100"
+              >
+                דוחות
               </Link>
               <Link
                 href="/admin/settings/doc-types"

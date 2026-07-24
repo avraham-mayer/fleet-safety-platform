@@ -17,13 +17,22 @@ app/
 │   ├── renew/[documentId]/   /renew/…     document renewal
 │   └── profile/              /profile     officer signature
 └── admin/            desktop admin portal (wide layout, own shell)
-    ├── page.tsx                       /admin                 companies overview + create
-    ├── companies/[companyId]/         /admin/companies/…     tabs: vehicles/drivers/alerts/details
+    ├── page.tsx                       /admin                 companies overview + create (+ ?archived=1 archive view)
+    ├── companies/[companyId]/         /admin/companies/…     tabs: vehicles/drivers/alerts/details (+ archive/restore, ?archived=1)
     ├── vehicles/[vehicleId]/          /admin/vehicles/…      full vehicle card ("new" = create form)
     ├── drivers/[driverId]/            /admin/drivers/…       full driver card ("new" = create form)
+    ├── reports/                       /admin/reports         printable reports (print → PDF) — see reports/README.md
     ├── settings/doc-types/            /admin/settings/…      treatment taxonomy
     └── settings/templates/            /admin/settings/…      checklist-template management
 ```
+
+**Archive:** companies/vehicles/drivers can be soft-retired (`archived_at`).
+Archived rows drop out of lists, the company tree, and the alert feed; restore
+them from the `?archived=1` views. Migration `0005`.
+
+**Reports** (`app/admin/reports/`) replace the legacy FastReport output — plain
+server-rendered pages + `PrintButton` + `@media print` in `globals.css`. Full
+detail in [`app/admin/reports/README.md`](./admin/reports/README.md).
 
 ## Auth layers
 

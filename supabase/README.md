@@ -12,6 +12,7 @@ Migrations are the source of truth; there is no ORM and no codegen.
 | `migrations/0002_phase2.sql` | profiles (+`handle_new_user` trigger), checklist_templates, documents, trainings, tasks; `documents` bucket |
 | `migrations/0003_phase3.sql` | Legacy-program parity: handler_id on the 3 core entities, extended vehicle/driver fields, doc_types, vehicle_drivers, accidents, violations, medical_checks, courses, tachograph_checks |
 | `migrations/0004_company_documents.sql` | Widens `documents.entity_type` + `doc_types.entity_type` CHECKs to allow `'company'` (fleet-level docs); `tasks` stays vehicle/driver-only |
+| `migrations/0005_archive.sql` | Soft-archive: adds `archived_at` + `archive_reason` to companies/vehicles/drivers (+ indexes). Archived = `archived_at IS NOT NULL`; such rows are hidden from lists, the company tree, and the alert feed. Mirrors legacy ארכיונים + transfer reason (`KTblCause`). |
 | `seed.sql` | Optional sample data + the doc_types catalog (18 legacy treatment types) |
 
 Never edit an applied migration — add a new `000N_*.sql`. Apply via the
@@ -22,9 +23,9 @@ Supabase SQL editor, `supabase db push`, or the MCP `apply_migration` tool.
 ### Core entities
 | Table | Purpose | Key columns |
 |---|---|---|
-| `companies` | Customer companies | name, ceo_name, prof_manager, address, phone, notes, **handler_id → profiles** |
-| `vehicles` | Fleet vehicles | company_id, license_plate, model, status(active/…), insurance/tachograph/registration expiries, vin, vehicle_type, registration_date, weights (total/self/payload kg), monthly_fee, policy_type, handler_id |
-| `drivers` | Drivers | company_id, name, id_number, license_number/type/restrictions/issue_year, hazmat_certified, address, city, phone, email, birth_date, work_start_date, handler_id |
+| `companies` | Customer companies | name, ceo_name, prof_manager, address, phone, notes, **handler_id → profiles**, archived_at/archive_reason |
+| `vehicles` | Fleet vehicles | company_id, license_plate, model, status(active/…), insurance/tachograph/registration expiries, vin, vehicle_type, registration_date, weights (total/self/payload kg), monthly_fee, policy_type, handler_id, **archived_at/archive_reason** |
+| `drivers` | Drivers | company_id, name, id_number, license_number/type/restrictions/issue_year, hazmat_certified, address, city, phone, email, birth_date, work_start_date, handler_id, **archived_at/archive_reason** |
 | `profiles` | One per auth user (via `handle_new_user` trigger) | full_name, **role** ('admin' unlocks the portal), signature_url (base64 data-URL) |
 
 ### Inspection system

@@ -19,6 +19,8 @@ export type Company = {
   handler_id: string | null;
   phone: string | null;
   notes: string | null;
+  archived_at: string | null;
+  archive_reason: string | null;
   created_at: string;
 };
 
@@ -45,6 +47,8 @@ export type Vehicle = {
   monthly_fee: number | null;
   policy_type: string | null;
   notes: string | null;
+  archived_at: string | null;
+  archive_reason: string | null;
   created_at: string;
 };
 
@@ -67,6 +71,8 @@ export type Driver = {
   birth_date: string | null;
   work_start_date: string | null;
   notes: string | null;
+  archived_at: string | null;
+  archive_reason: string | null;
   created_at: string;
 };
 

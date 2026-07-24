@@ -15,7 +15,7 @@ Two auth levels:
 
 | File | Function | What it does |
 |---|---|---|
-| `tasks.ts` | `getTaskFeed(opts?)` | READ: builds the merged feed (derived monthly queue + pending `tasks` + expiring documents), resolves company/plate/driver/handler labels, sorts expired→warning→ok. `{ forHandlerId }` scopes it to companies where `companies.handler_id` matches (officer view); omit for the full feed (admin). See [docs/ARCHITECTURE.md](../../docs/ARCHITECTURE.md). |
+| `tasks.ts` | `getTaskFeed(opts?)` | READ: builds the merged feed (derived monthly queue + pending `tasks` + expiring documents), resolves company/plate/driver/handler labels, sorts expired→warning→ok. **Archived entities are excluded** — it loads only `archived_at IS NULL` companies/vehicles/drivers and skips any task/doc whose entity (or owning company) is archived. `{ forHandlerId }` scopes it to companies where `companies.handler_id` matches (officer view); omit for the full feed (admin). Also backs the work-list report. See [docs/ARCHITECTURE.md](../../docs/ARCHITECTURE.md). |
 | `officer.ts` | `getMyCompanies` / `getCompanyStatus` / `getEntityDetail` | READ: officer status browsing (`/companies`, `/vehicles/[id]`, `/drivers/[id]`). Company-only scoping: officers see companies they handle, admins see all; out-of-scope lookups return null → 404. View-model types live here, not in `lib/types.ts`. |
 | `queue.ts` | `getMonthlyQueue()` | READ: active vehicles minus those with a completed monthly-template inspection in `currentCycleRange()`. |
 | `inspections.ts` | `submitInspection()` | One logical txn: persist wizard step-1/2 vehicle+driver edits → insert inspection (both signatures, template_id) → bulk-insert checklist lines → resolve linked task if any → `revalidatePath("/")`. |
@@ -40,6 +40,7 @@ labels keep their existing `key` so historical
 | Companies | `saveCompany` / `deleteCompany` | Upsert by presence of hidden `id` field; create redirects to the new entity page. Delete cascades (FKs). |
 | Vehicles / Drivers | `saveVehicle` / `deleteVehicle` / `saveDriver` / `deleteDriver` | Same upsert-or-create pattern; handle all Phase-3 fields. |
 | Documents | `saveDocument` / `deleteDocument` | Resolves display `doc_type` text from `doc_types` when `doc_type_id` given; optional upload to `documents` bucket at `<entityType>/<entityId>/<uuid>.<ext>`. |
+| Archive | `archiveRecord` / `unarchiveRecord` | **Soft-retire over the `{companies,vehicles,drivers}` allowlist** (table from a validated hidden field). Sets/clears `archived_at` (+ `archive_reason`). Archived rows disappear from lists, the company tree, and the **alert feed** — see the `getTaskFeed` note above (it selects `archived_at IS NULL` entities and skips tasks/docs whose entity or company is archived). |
 | Taxonomy | `saveDocType` / `toggleDocType` | The `/admin/settings/doc-types` catalog. |
 | Assignment | `assignVehicleDriver` / `unassignVehicleDriver` | Upsert on unique (vehicle_id, driver_id). |
 | Sub-records | `saveRecord` / `deleteRecord` | **Generic CRUD over the `RECORD_TABLES` allowlist** (accidents, violations, medical_checks, courses, tachograph_checks). The table name comes from a hidden form field and is validated against the allowlist — never widen this to arbitrary table names. Each entry declares its date/text/number field lists. |

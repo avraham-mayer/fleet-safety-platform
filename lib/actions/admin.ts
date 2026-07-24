@@ -267,6 +267,44 @@ export async function deleteDocument(formData: FormData) {
 }
 
 // ---------------------------------------------------------------------------
+// Archive (soft-retire) — companies / vehicles / drivers. Archived rows drop
+// out of lists, the company tree, and the alert feed but stay for history.
+// ---------------------------------------------------------------------------
+
+const ARCHIVABLE = new Set(["companies", "vehicles", "drivers"]);
+
+export async function archiveRecord(formData: FormData) {
+  const { supabase } = await requireAdmin();
+  const table = str(formData, "table");
+  const id = str(formData, "id");
+  if (!table || !ARCHIVABLE.has(table)) throw new Error("טבלה לא מוכרת");
+  if (!id) throw new Error("רשומה לא נמצאה");
+  const { error } = await supabase
+    .from(table)
+    .update({
+      archived_at: new Date().toISOString(),
+      archive_reason: str(formData, "archive_reason"),
+    })
+    .eq("id", id);
+  if (error) throw error;
+  revalidateAdmin();
+}
+
+export async function unarchiveRecord(formData: FormData) {
+  const { supabase } = await requireAdmin();
+  const table = str(formData, "table");
+  const id = str(formData, "id");
+  if (!table || !ARCHIVABLE.has(table)) throw new Error("טבלה לא מוכרת");
+  if (!id) throw new Error("רשומה לא נמצאה");
+  const { error } = await supabase
+    .from(table)
+    .update({ archived_at: null, archive_reason: null })
+    .eq("id", id);
+  if (error) throw error;
+  revalidateAdmin();
+}
+
+// ---------------------------------------------------------------------------
 // Doc-type catalog
 // ---------------------------------------------------------------------------
 

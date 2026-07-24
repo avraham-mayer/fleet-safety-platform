@@ -32,6 +32,7 @@ export async function getMonthlyQueue(): Promise<QueueVehicle[]> {
     .from("vehicles")
     .select("*, company:companies(id, name)")
     .eq("status", "active")
+    .is("archived_at", null)
     .order("license_plate");
 
   if (doneIds.length > 0) {

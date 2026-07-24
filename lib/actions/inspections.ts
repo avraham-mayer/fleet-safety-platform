@@ -43,6 +43,7 @@ export type SubmitInspectionInput = {
     insurance_expiry: string | null;
     tachograph_expiry: string | null;
     registration_expiry: string | null;
+    mileage: number | null;
   };
   driver: {
     license_number: string | null;

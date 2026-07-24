@@ -2,9 +2,15 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getTaskFeed } from "@/lib/actions/tasks";
-import { saveCompany, deleteCompany } from "@/lib/actions/admin";
+import {
+  saveCompany,
+  deleteCompany,
+  archiveRecord,
+  unarchiveRecord,
+} from "@/lib/actions/admin";
 import { severityFor } from "@/lib/expiry";
 import DeleteButton from "@/components/admin/DeleteButton";
+import ArchiveButton from "@/components/admin/ArchiveButton";
 import AlertsPanel from "@/components/admin/AlertsPanel";
 import {
   Card,
@@ -32,10 +38,11 @@ export default async function CompanyPage({
   searchParams,
 }: {
   params: Promise<{ companyId: string }>;
-  searchParams: Promise<{ tab?: string }>;
+  searchParams: Promise<{ tab?: string; archived?: string }>;
 }) {
   const { companyId } = await params;
-  const { tab = "vehicles" } = await searchParams;
+  const { tab = "vehicles", archived } = await searchParams;
+  const showArchived = archived === "1";
   const supabase = await createClient();
 
   const { data: companyRow } = await supabase
@@ -46,10 +53,28 @@ export default async function CompanyPage({
   if (!companyRow) notFound();
   const company = companyRow as Company;
 
+  let vehiclesQuery = supabase
+    .from("vehicles")
+    .select("*")
+    .eq("company_id", companyId)
+    .order("license_plate");
+  let driversQuery = supabase
+    .from("drivers")
+    .select("*")
+    .eq("company_id", companyId)
+    .order("name");
+  // Default view = active only; ?archived=1 flips to the archive list.
+  vehiclesQuery = showArchived
+    ? vehiclesQuery.not("archived_at", "is", null)
+    : vehiclesQuery.is("archived_at", null);
+  driversQuery = showArchived
+    ? driversQuery.not("archived_at", "is", null)
+    : driversQuery.is("archived_at", null);
+
   const [{ data: vehicles }, { data: drivers }, { data: docs }, { data: profiles }] =
     await Promise.all([
-      supabase.from("vehicles").select("*").eq("company_id", companyId).order("license_plate"),
-      supabase.from("drivers").select("*").eq("company_id", companyId).order("name"),
+      vehiclesQuery,
+      driversQuery,
       supabase.from("documents").select("*").eq("company_id", companyId),
       supabase.from("profiles").select("*").order("full_name"),
     ]);
@@ -116,10 +141,21 @@ export default async function CompanyPage({
         ))}
       </nav>
 
+      {(tab === "vehicles" || tab === "drivers") && (
+        <div className="no-print -mb-2 flex justify-end">
+          <Link
+            href={`/admin/companies/${companyId}?tab=${tab}${showArchived ? "" : "&archived=1"}`}
+            className="rounded-lg px-3 py-1 text-xs font-medium text-slate-600 hover:bg-slate-100"
+          >
+            {showArchived ? "→ הצג פעילים" : "הצג ארכיון ←"}
+          </Link>
+        </div>
+      )}
+
       {tab === "vehicles" && (
         <Card>
           <Table
-            headers={["מס' רישוי", "דגם", "סוג רכב", "מטפל", "מצב מסמכים"]}
+            headers={["מס' רישוי", "דגם", "סוג רכב", "מטפל", "מצב מסמכים", ""]}
             empty={(vehicles ?? []).length === 0}
           >
             {((vehicles ?? []) as Vehicle[]).map((v) => (
@@ -144,6 +180,13 @@ export default async function CompanyPage({
                     "—"
                   )}
                 </td>
+                <td className={`${tdCls} text-left`}>
+                  <ArchiveButton
+                    action={showArchived ? unarchiveRecord : archiveRecord}
+                    fields={{ table: "vehicles", id: v.id }}
+                    mode={showArchived ? "restore" : "archive"}
+                  />
+                </td>
               </tr>
             ))}
           </Table>
@@ -153,7 +196,7 @@ export default async function CompanyPage({
       {tab === "drivers" && (
         <Card>
           <Table
-            headers={["שם הנהג", "מס' רישיון", "ת. זהות", "דרגה", "מטפל", "מצב מסמכים"]}
+            headers={["שם הנהג", "מס' רישיון", "ת. זהות", "דרגה", "מטפל", "מצב מסמכים", ""]}
             empty={(drivers ?? []).length === 0}
           >
             {((drivers ?? []) as Driver[]).map((d) => (
@@ -178,6 +221,13 @@ export default async function CompanyPage({
                   ) : (
                     "—"
                   )}
+                </td>
+                <td className={`${tdCls} text-left`}>
+                  <ArchiveButton
+                    action={showArchived ? unarchiveRecord : archiveRecord}
+                    fields={{ table: "drivers", id: d.id }}
+                    mode={showArchived ? "restore" : "archive"}
+                  />
                 </td>
               </tr>
             ))}
@@ -235,7 +285,19 @@ export default async function CompanyPage({
               </button>
             </div>
           </form>
-          <div className="mt-4 border-t border-slate-100 pt-3">
+          {company.archived_at && (
+            <p className="mt-4 rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-800">
+              חברה בארכיון מאז{" "}
+              {new Date(company.archived_at).toLocaleDateString("he-IL")}
+              {company.archive_reason ? ` · סיבה: ${company.archive_reason}` : ""}
+            </p>
+          )}
+          <div className="mt-4 flex items-center gap-3 border-t border-slate-100 pt-3">
+            <ArchiveButton
+              action={company.archived_at ? unarchiveRecord : archiveRecord}
+              fields={{ table: "companies", id: company.id }}
+              mode={company.archived_at ? "restore" : "archive"}
+            />
             <DeleteButton
               action={deleteCompany}
               fields={{ id: company.id }}

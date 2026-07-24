@@ -18,11 +18,22 @@ export async function getTaskFeed(opts?: {
   let items: FeedItem[] = [];
 
   // Lookups for labels/filtering.
+  // Only non-archived entities feed the alert list — a retired vehicle/driver/
+  // company must not raise tasks or expiry alerts.
   const [{ data: companies }, { data: vehicles }, { data: drivers }] =
     await Promise.all([
-      supabase.from("companies").select("id, name, handler_id"),
-      supabase.from("vehicles").select("id, license_plate, company_id, handler_id"),
-      supabase.from("drivers").select("id, name, company_id, handler_id"),
+      supabase
+        .from("companies")
+        .select("id, name, handler_id")
+        .is("archived_at", null),
+      supabase
+        .from("vehicles")
+        .select("id, license_plate, company_id, handler_id")
+        .is("archived_at", null),
+      supabase
+        .from("drivers")
+        .select("id, name, company_id, handler_id")
+        .is("archived_at", null),
     ]);
 
   const companyName = new Map((companies ?? []).map((c) => [c.id, c.name]));
@@ -61,6 +72,11 @@ export async function getTaskFeed(opts?: {
     const isDriver = t.entity_type === "driver";
     const driver = isDriver ? driverById.get(t.entity_id) : undefined;
     const vehicle = !isDriver ? vehicleById.get(t.entity_id) : undefined;
+    // Skip tasks whose entity (or its company) is archived — the entity maps
+    // hold non-archived rows only.
+    if (isDriver ? !driver : !vehicle) continue;
+    const ownerCompanyId = driver?.company_id ?? vehicle?.company_id ?? null;
+    if (ownerCompanyId && !companyName.has(ownerCompanyId)) continue;
     const cName = t.company_id ? (companyName.get(t.company_id) ?? "") : "";
     const label = driver?.name ?? vehicle?.license_plate ?? "";
 
@@ -97,6 +113,10 @@ export async function getTaskFeed(opts?: {
       d.entity_type === "driver" ? driverById.get(d.entity_id) : undefined;
     const vehicle =
       d.entity_type === "vehicle" ? vehicleById.get(d.entity_id) : undefined;
+    // Skip docs whose vehicle/driver is archived, or whose company is archived.
+    if (d.entity_type === "driver" && !driver) continue;
+    if (d.entity_type === "vehicle" && !vehicle) continue;
+    if (!companyName.has(d.company_id)) continue;
     const cName = companyName.get(d.company_id) ?? "";
     // Company-level documents (0004) label as the company itself.
     const label = driver?.name ?? vehicle?.license_plate ?? cName;

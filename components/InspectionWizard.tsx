@@ -49,6 +49,9 @@ export default function InspectionWizard({
   const [registration, setRegistration] = useState(
     vehicle.registration_expiry ?? "",
   );
+  const [mileage, setMileage] = useState(
+    vehicle.mileage != null ? String(vehicle.mileage) : "",
+  );
 
   // Step 2 — driver
   const [driverId, setDriverId] = useState("");
@@ -127,6 +130,7 @@ export default function InspectionWizard({
           insurance_expiry: insurance || null,
           tachograph_expiry: tachograph || null,
           registration_expiry: registration || null,
+          mileage: mileage.trim() ? Number(mileage) : null,
         },
         driver: { license_number: licenseNumber || null, hazmat_certified: hazmat },
         summaryRemarks: summary.trim() || null,
@@ -204,6 +208,16 @@ export default function InspectionWizard({
                 type="date"
                 value={registration}
                 onChange={(e) => setRegistration(e.target.value)}
+                className={inputClass}
+              />
+            </Field>
+            <Field label="קריאת מד-אוץ׳ (ק״מ) / Odometer">
+              <input
+                type="number"
+                inputMode="numeric"
+                min={0}
+                value={mileage}
+                onChange={(e) => setMileage(e.target.value)}
                 className={inputClass}
               />
             </Field>

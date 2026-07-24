@@ -133,9 +133,17 @@ export default async function VehiclePage({
           )}
         </div>
         {!isNew && (
-          <Link href={`/inspect/${vehicle!.id}`} className={submitCls}>
-            ביצוע בדיקה
-          </Link>
+          <div className="flex gap-2">
+            <Link
+              href={`/admin/reports/vehicle/${vehicle!.id}`}
+              className="rounded-lg px-4 py-1.5 text-sm font-semibold text-slate-700 ring-1 ring-slate-300 hover:bg-slate-100"
+            >
+              כרטיס להדפסה
+            </Link>
+            <Link href={`/inspect/${vehicle!.id}`} className={submitCls}>
+              ביצוע בדיקה
+            </Link>
+          </div>
         )}
       </div>
 

@@ -150,6 +150,26 @@ Driver/company fields are well covered.
 
 ## 5. To-do list to reach parity (prioritized)
 
+### Progress log
+- ✅ **Reports infrastructure** — print-to-PDF via browser (`components/admin/PrintButton.tsx`
+  + print CSS in `globals.css`), reports hub at `/admin/reports`, nav link added.
+- ✅ **Monthly work list report** (`/admin/reports/worklist`) — the legacy program's
+  core deliverable. Reuses `getTaskFeed`, groups by company, filters by
+  handler/company/type, prints/saves as PDF.
+- ✅ **Odometer capture on inspection** — `InspectionWizard` step 1 now records
+  mileage; `submitInspection` writes it to `vehicles.mileage` (closes a field-sync gap).
+- ✅ **Archive** (migration `0005_archive.sql`) — soft-retire companies/vehicles/
+  drivers with a reason. Hidden from lists, company tree, and the alert feed;
+  archive/restore UI on the company page + admin home archive view.
+  **NB: run migration 0005 on the DB before this works live.**
+- ✅ **Vehicle card report** (`/admin/reports/vehicle/[id]`) + **driver card report**
+  (`/admin/reports/driver/[id]`) — printable single-entity dossiers (details,
+  documents, history, sub-records, assignments). Reached via "כרטיס להדפסה" on
+  the entity admin page. Legacy rpCarKartis / rpDrvKartis.
+- ⬜ Remaining: warning emails, lookups, missing-data, annual plan, gov lookup,
+  compliance-history report, Invoicing module.
+
+
 **P1 – real gaps officers/admins will feel**
 1. **Printable/exportable reports.** At least: vehicle card (כרטיס רכב), driver card,
    company compliance summary, expiry/warning report. Start with server-rendered
@@ -174,8 +194,16 @@ Driver/company fields are well covered.
 11. Label printing (only if they still print physical labels).
 12. SPSS export (very niche; likely droppable).
 
+**Optional module — Billing (build only if client wants one system)**
+Not a technical blocker; client currently keeps Kochavit for invoicing. If we build it,
+budget for the Israeli tax surface, not just "a PDF with a total":
+- Sequential legal invoice numbering, VAT (מע"מ), credit notes (חשבונית זיכוי).
+- **Allocation-number mandate** (מספר הקצאה, רשות המסים) for invoices above the
+  threshold — a live API integration, phased in 2024–2025.
+- Decision needed before promising "delete Kochavit entirely."
+
 **Explicitly NOT parity targets (out of scope unless client asks)**
-- Billing: invoices (חשבוניות), checks (המחאות), banks, payment methods, annual billing.
+- Checks (המחאות), banks, payment methods, annual billing (the money-movement side).
 - Handheld-terminal (מסופון) sync — replaced by native mobile.
 - Web-sync layer — replaced by web-native architecture.
 - Word mail-merge editing.
