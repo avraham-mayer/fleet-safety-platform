@@ -1,10 +1,17 @@
--- Sample data for local development.
+-- Sample data for local development. IDEMPOTENT: safe to run multiple times —
+-- every insert is guarded by `where not exists`, so a second run is a no-op
+-- instead of silently duplicating rows (which is what produced the earlier
+-- "each company appears twice" bug).
 -- Inspections are intentionally NOT seeded: they require a real auth.users
 -- officer_id. Sign in and create them through the wizard instead.
 
-insert into companies (name) values
+insert into companies (name)
+select v.name
+from (values
   ('הובלות הגליל בע"מ'),
-  ('שינוע דרום בע"מ');
+  ('שינוע דרום בע"מ')
+) as v(name)
+where not exists (select 1 from companies c where c.name = v.name);
 
 -- Vehicles spread across both companies. Expiry dates are illustrative.
 insert into vehicles (company_id, license_plate, model, insurance_expiry, tachograph_expiry, registration_expiry)
@@ -20,7 +27,8 @@ join (values
   ('שינוע דרום בע"מ',   '78-901-23', 'Renault T',       date '2026-12-01', date '2026-09-15', date '2027-01-10'),
   ('שינוע דרום בע"מ',   '89-012-34', 'Volvo FM',        date '2026-08-25', date '2026-11-20', date '2026-12-31')
 ) as v(company_name, license_plate, model, insurance_expiry, tachograph_expiry, registration_expiry)
-  on v.company_name = c.name;
+  on v.company_name = c.name
+where not exists (select 1 from vehicles ev where ev.license_plate = v.license_plate);
 
 insert into drivers (company_id, name, license_number, hazmat_certified)
 select c.id, d.name, d.license_number, d.hazmat_certified
@@ -31,14 +39,17 @@ join (values
   ('שינוע דרום בע"מ',   'דוד פרץ',     '5566778', true),
   ('שינוע דרום בע"מ',   'אבי מזרחי',   '6677889', false)
 ) as d(company_name, name, license_number, hazmat_certified)
-  on d.company_name = c.name;
+  on d.company_name = c.name
+where not exists (select 1 from drivers ed where ed.license_number = d.license_number);
 
 -- ---------------------------------------------------------------------------
 -- Phase 2 sample data
 -- ---------------------------------------------------------------------------
 
 -- Checklist templates. Items default to Pass in the wizard.
-insert into checklist_templates (name, type, items) values
+insert into checklist_templates (name, type, items)
+select v.name, v.type, v.items::jsonb
+from (values
   ('בדיקה חודשית', 'monthly', '[
     {"key":"tires","label":"צמיגים / Tires"},
     {"key":"lights","label":"תאורה / Lights"},
@@ -54,7 +65,9 @@ insert into checklist_templates (name, type, items) values
     {"key":"pads","label":"רפידות / Pads"},
     {"key":"discs","label":"דיסקים / Discs"},
     {"key":"brake_fluid","label":"נוזל בלמים / Brake fluid"}
-  ]');
+  ]')
+) as v(name, type, items)
+where not exists (select 1 from checklist_templates ct where ct.name = v.name);
 
 -- Documents with a mix of expired / expiring-soon / ok dates (today ≈ 2026-06-26).
 insert into documents (entity_type, entity_id, company_id, doc_type, expiry_date)
@@ -65,19 +78,29 @@ join (values
   ('23-456-78', 'ביטוח',      date '2026-07-15'),  -- soon
   ('56-789-01', 'טכוגרף',     date '2026-12-01')   -- ok
 ) as x(plate, doc_type, expiry_date)
-  on x.plate = v.license_plate;
+  on x.plate = v.license_plate
+where not exists (
+  select 1 from documents ed
+  where ed.entity_type = 'vehicle' and ed.entity_id = v.id and ed.doc_type = x.doc_type
+);
 
 insert into documents (entity_type, entity_id, company_id, doc_type, expiry_date)
 select 'driver', d.id, d.company_id, 'רישיון נהיגה', date '2026-07-05' -- soon
 from drivers d
-where d.name = 'יוסי כהן';
+where d.name = 'יוסי כהן'
+  and not exists (
+    select 1 from documents ed
+    where ed.entity_type = 'driver' and ed.entity_id = d.id and ed.doc_type = 'רישיון נהיגה'
+  );
 
 -- ---------------------------------------------------------------------------
 -- Phase 3 sample data
 -- ---------------------------------------------------------------------------
 
 -- Doc-type catalog mirroring the legacy "טיפולים" taxonomy.
-insert into doc_types (entity_type, name, recurrence_months) values
+insert into doc_types (entity_type, name, recurrence_months)
+select v.entity_type, v.name, v.recurrence_months
+from (values
   ('vehicle', 'ביטוח חובה',                12),
   ('vehicle', 'מבחן רישוי שנתי',           12),
   ('vehicle', 'תעודת כיול טכוגרף',         24),
@@ -95,7 +118,11 @@ insert into doc_types (entity_type, name, recurrence_months) values
   ('driver',  'שאלון קיץ',                 12),
   ('driver',  'הנחיות בטיחות כללי',        12),
   ('driver',  'נספחים לנהג',               null),
-  ('driver',  'פלט הרשאות נהגים',          12);
+  ('driver',  'פלט הרשאות נהגים',          12)
+) as v(entity_type, name, recurrence_months)
+where not exists (
+  select 1 from doc_types dt where dt.entity_type = v.entity_type and dt.name = v.name
+);
 
 -- Pending training tasks (materialized).
 insert into tasks (company_id, entity_type, entity_id, task_type, title, due_date)
@@ -105,4 +132,8 @@ join (values
   ('יוסי כהן',  'הדרכת תמרורים / Traffic signs', date '2026-06-01'),  -- overdue
   ('דוד פרץ',   'הדרכת חורף / Winter training',   date '2026-07-20')   -- upcoming
 ) as x(name, title, due_date)
-  on x.name = d.name;
+  on x.name = d.name
+where not exists (
+  select 1 from tasks et
+  where et.entity_type = 'driver' and et.entity_id = d.id and et.title = x.title
+);
