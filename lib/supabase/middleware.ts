@@ -46,5 +46,22 @@ export async function updateSession(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
+  // Edge-level defense in depth for the admin portal — app/admin/layout.tsx
+  // re-checks the role server-side too, but a redirect here means a
+  // non-admin never even reaches that render.
+  const isAdminRoute = request.nextUrl.pathname.startsWith("/admin");
+  if (user && isAdminRoute) {
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("role")
+      .eq("id", user.id)
+      .single();
+    if (profile?.role !== "admin") {
+      const url = request.nextUrl.clone();
+      url.pathname = "/";
+      return NextResponse.redirect(url);
+    }
+  }
+
   return response;
 }
