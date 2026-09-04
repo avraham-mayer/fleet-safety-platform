@@ -153,5 +153,7 @@ admin edits affect many pages). All admin/feed pages export
   layer, not RLS. Don't "fix" the advisors' permissive-RLS warnings.
 - **Hebrew-first RTL**: the root layout sets `dir="rtl"`; `text-left` in
   Tailwind therefore means the *end* of a row visually.
-- **No test framework** — verification is `npm run build` + `npm run lint` +
+- **Tests are Vitest + React Testing Library** (`vitest.config.ts`, jsdom,
+  `*.test.ts(x)` next to their source). Verification is `npm run lint` +
+  `npm test` + `npm run build`, backed by CI (`.github/workflows/ci.yml`), plus
   manually driving the flows (see docs/MAINTENANCE.md).
