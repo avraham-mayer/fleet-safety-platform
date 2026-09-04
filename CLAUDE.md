@@ -37,6 +37,12 @@ export NVM_DIR="$HOME/.nvm"; . "$NVM_DIR/nvm.sh"; export PATH="$HOME/.nvm/versio
 Build verification needs placeholder env vars in `.env.local` (real values for
 runtime). See `README.md` for Supabase setup.
 
+## Environment Setup
+
+Environment runs under WSL/zsh with nvm-managed Node. Always verify `which npm`
+resolves to nvm path (not Windows shim) before running scripts. Ensure `jq` is
+installed for status-line/tooling scripts.
+
 ## Testing is mandatory — Test-Driven Development
 
 **Every behavioural change ships with tests, written test-first.** No feature or
@@ -66,6 +72,15 @@ later addition — see `docs/TODO-PARITY.md`.
 `main` is the protected trunk. **One branch per feature/fix off `main`**
 (`feat/…`, `fix/…`, `chore/…`) → write tests first → push → open a PR → CI must
 be green → review → merge → delete the branch. Never commit straight to `main`.
+
+Work from an isolated worktree rather than committing directly to a shared
+branch, and run `npm run lint` + `npm test` before every commit. Skill `/pr`
+automates the loop: lint/test, create the worktree, commit, and open the PR.
+
+## Working Style
+
+Before broad autonomous investigation on vague requests (e.g. 'login'), ask one
+clarifying question to scope the task rather than launching extensive exploration.
 
 ## Architecture
 

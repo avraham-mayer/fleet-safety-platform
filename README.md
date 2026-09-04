@@ -15,7 +15,8 @@ codebase, one Supabase backend:
   and a filterable alerts screen. Requires `profiles.role = 'admin'`.
 
 Stack: **Next.js 16 (App Router) · TypeScript · Tailwind v4 · Supabase**
-(Postgres + Auth + Storage). No ORM, no test framework, no cron jobs.
+(Postgres + Auth + Storage). No ORM, no cron jobs. Tests run on **Vitest +
+React Testing Library** (`npm test`); CI runs lint + tests + build on every PR.
 
 ## Documentation map
 

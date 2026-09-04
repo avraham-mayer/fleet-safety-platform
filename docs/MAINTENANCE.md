@@ -67,8 +67,8 @@ CLAUDE.md for the one-liner). Local build/typecheck needs a `.env.local`
 
 ## Verification checklist after any change
 
-1. `npm run build` (typecheck) + `npm run lint` — both clean.
-2. Drive the affected flow in the browser (there is no test framework):
+1. `npm run lint` + `npm test` (Vitest) + `npm run build` (typecheck) — all clean.
+2. Drive the affected flow in the browser (tests cover pure logic, not the flows):
    - Feed loads at `/`, chips colored correctly.
    - Officer flows: inspect → dual signatures → vehicle leaves queue;
      train → task resolved + next year's task appears; renew → alert clears.
